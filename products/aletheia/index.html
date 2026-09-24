@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Aletheia</title>
+<meta name="description" content="Aletheia — a macOS developer tool that shows you what is actually on your Mac, and exactly what it would do about it.">
+<!--
+  DESIGN NOTES
+
+  Register: a product page, not an essay. apperception.eu is deliberately mild
+  because it is a person; this is a thing you would install, and it is allowed to
+  have presence. lumento.one is the sibling to match in energy, not in palette.
+
+  The rule that gives the page its logic: DARK IS RESERVED FOR MACHINE VOICE.
+  The only dark surface here is the panel where the app's own output lives.
+  Everything addressed to a human is on paper.
+
+  Palette: bone / deep indigo ink / ultramarine / burnt sienna. None of the three
+  are used by apperception.eu (monochrome + serif) or lumento.one (cream/mustard/
+  teal), so the family reads as a family of distinct things.
+
+  The two data colours were validated, not eyeballed: ultramarine #2C3EAF against
+  sienna #B3541E gives OKLab dE 32.4 at normal vision (hard floor 15) and 29.0 /
+  33.7 / 27.6 under protan / deutan / tritan simulation (target 8). Both segments
+  are direct-labelled regardless, so identity is never carried by colour alone.
+
+  R88: no third-party requests, no cookies, no analytics. Type is the system
+  stack, which on a Mac tool is the native voice and owes nothing to a font host.
+  Source of truth: cleanmymac/site/products/aletheia/index.html
+-->
+<style>
+  :root{
+    --paper:#FAFAF7;
+    --surface:#FFFFFF;
+    --sunk:#F1F1EC;
+    --ink:#12142B;
+    --ink-2:#4A4E6B;
+    --ink-3:#83879E;
+    --accent:#2C3EAF;
+    --accent-2:#5566D8;
+    --accent-lift:#E7EAFA;
+    --signal:#B3541E;
+    --signal-lift:#F7E9DF;
+    --rule:#E1E1DA;
+    --rule-2:#CECEC6;
+    --machine:#12142B;
+    --machine-ink:#E4E6F2;
+    --machine-faint:#7B7F9C;
+    --on-accent:#FFFFFF;
+    --on-signal:#FFFFFF;
+    --serif:ui-serif,"New York","Iowan Old Style",Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --paper:#0D0E1C; --surface:#151729; --sunk:#101223;
+      --ink:#ECEDF6; --ink-2:#A8ACC4; --ink-3:#787C96;
+      --accent:#8D9BFF; --accent-2:#6C7CF0; --accent-lift:#1C2044;
+      --signal:#E0904F; --signal-lift:#2E2018;
+      --rule:#262941; --rule-2:#343855;
+      --machine:#07080F; --machine-ink:#E4E6F2; --machine-faint:#767A96;
+      --on-accent:#0D0E1C; --on-signal:#241408;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0D0E1C; --surface:#151729; --sunk:#101223;
+    --ink:#ECEDF6; --ink-2:#A8ACC4; --ink-3:#787C96;
+    --accent:#8D9BFF; --accent-2:#6C7CF0; --accent-lift:#1C2044;
+    --signal:#E0904F; --signal-lift:#2E2018;
+    --rule:#262941; --rule-2:#343855;
+    --machine:#07080F; --machine-ink:#E4E6F2; --machine-faint:#767A96;
+    --on-accent:#0D0E1C; --on-signal:#241408;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--sans); font-size:17px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{width:min(940px,100%); margin-inline:auto; padding-inline:22px}
+  p{margin:0 0 1em} p:last-child{margin-bottom:0}
+  a{color:var(--accent); text-underline-offset:3px}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
+
+  /* ---------- sticky bar ---------- */
+  .bar{
+    position:sticky; top:env(safe-area-inset-top,0px); z-index:20;
+    background:color-mix(in srgb,var(--paper) 88%,transparent);
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--rule);
+  }
+  .bar .wrap{display:flex; align-items:center; justify-content:space-between; gap:16px; height:60px}
+  .brand{font-family:var(--serif); font-size:23px; letter-spacing:-.005em}
+  .chip{
+    font-size:11.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase;
+    color:var(--accent); background:var(--accent-lift); border-radius:999px;
+    padding:5px 11px; white-space:nowrap;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{padding-block:72px 60px}
+  .kicker{
+    font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--ink-3); margin:0 0 20px;
+  }
+  h1{
+    font-size:clamp(38px,7.2vw,68px); line-height:1.03; letter-spacing:-.035em;
+    font-weight:600; margin:0 0 26px; text-wrap:balance;
+  }
+  h1 .em{color:var(--accent)}
+  .lede{font-size:clamp(18px,2.2vw,21px); line-height:1.5; color:var(--ink-2); max-width:34em; text-wrap:pretty}
+  .say{font-family:var(--mono); font-size:12.5px; color:var(--ink-3); margin-top:22px}
+
+  /* ---------- dictionary: one moment, not a theme ---------- */
+  .dict{
+    margin-top:38px; display:grid; gap:18px; grid-template-columns:1fr 1fr;
+    border-top:1px solid var(--rule); padding-top:26px;
+  }
+  .dterm{font-family:var(--serif); font-size:15px; color:var(--ink-3); margin:0 0 5px}
+  .dterm b{color:var(--ink); font-weight:600}
+  .ddef{font-family:var(--serif); font-size:17.5px; line-height:1.45; margin:0}
+
+  /* ---------- sections ---------- */
+  section{padding-block:60px; border-top:1px solid var(--rule)}
+  h2{font-size:clamp(25px,3.4vw,33px); line-height:1.15; letter-spacing:-.025em; font-weight:600; margin:0 0 14px; text-wrap:balance}
+  .intro{font-size:18px; color:var(--ink-2); max-width:38em; margin-bottom:34px; text-wrap:pretty}
+
+  /* ---------- the finding ---------- */
+  .finding{
+    background:var(--surface); border:1px solid var(--rule-2); border-radius:14px;
+    overflow:hidden; box-shadow:0 1px 2px rgba(18,20,43,.05),0 12px 32px -18px rgba(18,20,43,.28);
+  }
+  .f-head{padding:24px 26px 20px}
+  .f-title{font-size:21px; font-weight:600; line-height:1.3; letter-spacing:-.015em; margin:0 0 14px; text-wrap:balance}
+  .chips{display:flex; flex-wrap:wrap; gap:8px}
+  .tag{
+    font-family:var(--mono); font-size:11.5px; padding:4px 9px; border-radius:6px;
+    background:var(--sunk); border:1px solid var(--rule); color:var(--ink-2);
+    font-variant-numeric:tabular-nums;
+  }
+  .tag.ok{color:var(--accent); border-color:var(--accent); background:var(--accent-lift)}
+  .tag.back{color:var(--signal); border-color:var(--signal); background:var(--signal-lift)}
+  .f-why{padding:0 26px 22px; color:var(--ink-2); max-width:44em}
+  code{font-family:var(--mono); font-size:.87em; color:var(--ink)}
+
+  .routes{display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--rule)}
+  .route{padding:18px 26px 20px; display:flex; gap:12px; align-items:flex-start}
+  .route+.route{border-left:1px solid var(--rule)}
+  .rbtn{
+    flex:none; font-size:12.5px; font-weight:600; border-radius:8px; padding:7px 13px;
+    border:1px solid var(--accent); color:var(--accent); background:transparent; white-space:nowrap;
+  }
+  .rbtn.solid{background:var(--accent); color:var(--on-accent); border-color:var(--accent)}
+  .rtxt{font-size:14px; color:var(--ink-2); margin:0; padding-top:3px}
+
+  .machine{
+    background:var(--machine); color:var(--machine-ink);
+    font-family:var(--mono); font-size:12.5px; line-height:1.8;
+    padding:20px 24px; overflow-x:auto;
+  }
+  .machine .c{color:var(--machine-faint)}
+  .machine .k{color:#95A3FF}
+  .m-label{
+    font-family:var(--sans); font-size:10.5px; font-weight:600; letter-spacing:.11em;
+    text-transform:uppercase; color:var(--machine-faint); padding:14px 24px 0; background:var(--machine);
+  }
+  .pull{
+    margin-top:26px; font-size:19px; line-height:1.45; color:var(--ink);
+    border-left:3px solid var(--accent); padding-left:20px; max-width:40em; text-wrap:pretty;
+  }
+
+  /* ---------- knows: card grid ---------- */
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+  .card{
+    background:var(--surface); border:1px solid var(--rule); border-radius:12px;
+    padding:22px 22px 24px;
+  }
+  .cnum{
+    font-family:var(--mono); font-size:11px; letter-spacing:.08em; color:var(--accent);
+    display:block; margin-bottom:12px;
+  }
+  .card h3{font-size:17.5px; font-weight:600; line-height:1.3; margin:0 0 9px; letter-spacing:-.01em}
+  .card p{font-size:14.5px; color:var(--ink-2); margin:0}
+
+  /* ---------- the data moment ---------- */
+  .stat{
+    background:var(--surface); border:1px solid var(--rule-2); border-radius:14px; padding:28px 28px 26px;
+  }
+  .big{
+    font-size:clamp(40px,6vw,58px); font-weight:600; letter-spacing:-.04em; line-height:1;
+    font-variant-numeric:tabular-nums; margin:0 0 6px;
+  }
+  .big .unit{font-size:.44em; font-weight:500; color:var(--ink-3); letter-spacing:-.01em}
+  .statsub{font-size:15px; color:var(--ink-2); margin:0 0 26px}
+  .barwrap{margin-bottom:12px}
+  .bar-track{display:flex; height:46px; border-radius:8px; overflow:hidden; gap:2px; background:var(--sunk)}
+  .seg{display:flex; align-items:center; padding-inline:13px; font-size:13px; font-weight:600; white-space:nowrap; min-width:0}
+  .seg .n{font-variant-numeric:tabular-nums}
+  .seg.kept{background:var(--accent); color:var(--on-accent); flex:10}
+  .seg.back{background:var(--signal); color:var(--on-signal); flex:16}
+  .seg span{overflow:hidden; text-overflow:ellipsis}
+  .scale{display:flex; justify-content:space-between; font-family:var(--mono); font-size:11.5px; color:var(--ink-3); font-variant-numeric:tabular-nums}
+  .statnote{margin-top:20px; font-size:15px; color:var(--ink-2); max-width:42em}
+
+  /* ---------- refusals ---------- */
+  .refuse{list-style:none; padding:0; margin:0; display:grid; gap:2px; border:1px solid var(--rule); border-radius:12px; overflow:hidden; background:var(--rule)}
+  .refuse li{background:var(--surface); padding:22px 24px; display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:start}
+  .no{
+    font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.09em; color:var(--signal);
+    border:1px solid var(--signal); border-radius:5px; padding:3px 7px; margin-top:2px; white-space:nowrap;
+  }
+  .refuse strong{display:block; font-size:16.5px; letter-spacing:-.01em; margin-bottom:5px}
+  .refuse p{font-size:14.5px; color:var(--ink-2); margin:0}
+
+  /* ---------- guarantee ---------- */
+  .promise{
+    background:var(--accent-lift); border:1px solid var(--accent); border-radius:14px;
+    padding:32px 30px;
+  }
+  .promise h2{margin-bottom:10px}
+  .promise p{font-size:18.5px; color:var(--ink); max-width:38em; text-wrap:pretty}
+
+  footer{border-top:1px solid var(--rule); padding-block:38px 56px; font-size:14px; color:var(--ink-3)}
+  footer p{margin:0 0 .7em; max-width:46em}
+
+  @media (max-width:760px){
+    .grid{grid-template-columns:1fr}
+    .dict{grid-template-columns:1fr; gap:22px}
+  }
+  @media (max-width:560px){
+    .routes{grid-template-columns:1fr}
+    .route+.route{border-left:0; border-top:1px solid var(--rule)}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="wrap">
+    <span class="brand">aletheia</span>
+    <span class="chip">Not released · in design</span>
+  </div>
+</div>
+
+<main>
+
+  <div class="wrap hero">
+    <p class="kicker">A macOS developer tool</p>
+    <h1>Find out what is<br>actually on your Mac.<br><span class="em">Then decide for yourself.</span></h1>
+    <p class="lede">It knows where developer disk and memory really go — toolchain caches, editor churn, container images, simulators booted and forgotten. Then it shows you the exact commands it would run, so you can run them yourself instead.</p>
+    <p class="say">/əˈleɪθiə/ &nbsp;·&nbsp; a-LAY-thee-a</p>
+
+    <div class="dict">
+      <div>
+        <p class="dterm"><b>aletheia</b> <em>n.</em></p>
+        <p class="ddef">the state of not being hidden — what shows itself once concealment is removed. From <em>a-</em> + <em>lethe</em>, the river of forgetting: literally, un-forgetting.</p>
+      </div>
+      <div>
+        <p class="dterm"><em>also —</em></p>
+        <p class="ddef">knowing what is on your Mac: every toolchain, cache and long-forgotten install, with its size, its age, and whether you have touched it since.</p>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <h2>Every finding shows its work</h2>
+      <p class="intro">No progress ring, no "1,284 issues found", no number you cannot check. One finding, with the evidence that produced it and both ways to act on it.</p>
+
+      <div class="finding">
+        <div class="f-head">
+          <p class="f-title">VS Code has eight extension folders it marked dead and never removed</p>
+          <div class="chips">
+            <span class="tag">2.6 GB</span>
+            <span class="tag">rebuilt instantly</span>
+            <span class="tag ok">measured</span>
+            <span class="tag back">came back within 48 hours last time</span>
+          </div>
+        </div>
+        <p class="f-why">VS Code's own <code>.obsolete</code> file names these folders. That is the editor saying they are dead — not this app guessing from a date, a version number or a folder's size.</p>
+
+        <div class="routes">
+          <div class="route">
+            <span class="rbtn">Do it myself</span>
+            <p class="rtxt">Every path in full, copyable.</p>
+          </div>
+          <div class="route">
+            <span class="rbtn solid">Clean it for me</span>
+            <p class="rtxt">Runs exactly what is printed below.</p>
+          </div>
+        </div>
+
+        <p class="m-label">What it would run</p>
+        <div class="machine">
+<span class="c"># eight folders named in ~/.vscode/extensions/.obsolete</span>
+<span class="k">rm</span> -rf ~/.vscode/extensions/ms-python.python-2025.14.0
+<span class="k">rm</span> -rf ~/.vscode/extensions/anthropic.claude-code-1.0.44
+<span class="c">#   … six more, every path shown in full before anything runs</span>
+        </div>
+      </div>
+
+      <p class="pull">Both buttons do the same thing, and the app says so out loud. Where a toolchain has its own cleanup command, both routes are literally <code>brew cleanup</code> — there is no version of this you cannot do without us.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>What it knows that a size chart doesn't</h2>
+      <p class="intro">Ranking folders by size finds your video library. These are the things that only show up if you know where to look.</p>
+      <div class="grid">
+        <article class="card">
+          <span class="cnum">01</span>
+          <h3>Where developer disk goes</h3>
+          <p>Extension churn duplicated across three install locations, sparse disk images that lie about their size, orphaned build output, device support for phones you no longer own.</p>
+        </article>
+        <article class="card">
+          <span class="cnum">02</span>
+          <h3>Memory as macOS means it</h3>
+          <p>Configured allocation rather than RSS, swap reported with its total, load average. Never "free RAM", which on this platform is not a health metric at all.</p>
+        </article>
+        <article class="card">
+          <span class="cnum">03</span>
+          <h3>What it cannot see</h3>
+          <p>Without Full Disk Access it cannot measure Trash, Safari, Mail or Messages — so it says that, instead of quietly leaving them out of a total and calling it complete.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>The part nobody mentions</h2>
+      <p class="intro">Cleaning up is the easy half. It is what happens over the next two days that decides whether it was worth doing.</p>
+
+      <div class="stat">
+        <p class="big">26<span class="unit"> GB reclaimed</span></p>
+        <p class="statsub">One careful manual cleanup, on one 8 GB MacBook with a 228 GB disk.</p>
+
+        <div class="barwrap">
+          <div class="bar-track" role="img" aria-label="Of 26 GB reclaimed, 10 GB stayed free and 16 GB returned within 48 hours.">
+            <div class="seg kept"><span><span class="n">10 GB</span> stayed free</span></div>
+            <div class="seg back"><span><span class="n">16 GB</span> came back in 48 hours</span></div>
+          </div>
+        </div>
+        <div class="scale"><span>0 GB</span><span>26 GB</span></div>
+
+        <p class="statnote">Sixteen of the twenty-six were back within two days, and nothing announced it. That regrowth is the reason this exists — not the cleanup, which any careful developer can already do by hand.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>What it will not do</h2>
+      <p class="intro">There is no paid tier here, so there is nothing to be gained by pretending any of this is a problem.</p>
+      <ul class="refuse">
+        <li>
+          <span class="no">NO</span>
+          <div>
+            <strong>Claim space macOS already manages</strong>
+            <p>Twenty-eight registered CacheDelete services own logs, Photos caches, thumbnails and document revisions, and macOS drops them under pressure on its own. Most of what this category advertises is space the operating system already owns.</p>
+          </div>
+        </li>
+        <li>
+          <span class="no">NO</span>
+          <div>
+            <strong>Touch anything whose real copy lives elsewhere</strong>
+            <p>Dropbox, iCloud, OneDrive, Google Drive, NAS mounts and every future one are reported and never deleted. A cloud folder is not a cache, however much it looks like one on disk.</p>
+          </div>
+        </li>
+        <li>
+          <span class="no">NO</span>
+          <div>
+            <strong>Report a number it cannot stand behind</strong>
+            <p>Every finding is marked <em>measured</em> or <em>inferred</em> and carries the command that produced it. A figure you cannot reproduce is not evidence, it is advertising.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="promise">
+        <h2>The guarantee</h2>
+        <p>It never deletes anything whose authoritative copy is somewhere else. Everything it proposes is something your machine can rebuild on its own — and it will tell you what rebuilding costs before you decide.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p>Every figure on this page was measured on a single machine: one 8 GB M2 running macOS 26.5.2, build 25F84. One machine is not a study, and this page will not pretend otherwise.</p>
+      <p>Nothing is released yet. There is no download, no waiting list and nothing to sign up for.</p>
+      <p>An <a href="https://apperception.eu/">apperception</a> project · free, with no paid tier to protect · no cookies, no tracking, no analytics</p>
+    </div>
+  </footer>
+
+</main>
+</body>
+</html>
